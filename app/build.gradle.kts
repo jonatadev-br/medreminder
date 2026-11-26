@@ -37,7 +37,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.11"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
 }
 
@@ -46,7 +46,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
     implementation("androidx.activity:activity-compose:1.9.0")
 
-    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    val composeBom = platform("androidx.compose:compose-bom:2024.10.00")
     implementation(composeBom)
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -60,7 +60,6 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
