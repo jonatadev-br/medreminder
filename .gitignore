@@ -1,0 +1,47 @@
+# Gradle
+.gradle/
+build/
+*/build/
+*/build.gradle
+
+# Local configuration
+local.properties
+*.iml
+.idea/
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+*.jar
+*.aar
+*.so
+*.o
+*.lib
+
+# Generated files
+*.generated.java
+*.generated.kotlin
+
+# Signing
+*.keystore
+*.jks
+*.p12
+*.pem
+key.properties
+
+# Release APKs (we keep debug APKs in release folder)
+release/*.apk
+
+# Coverage
+coverage/
+
+# Logs
+*.log

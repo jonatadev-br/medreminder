@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Safe zone: 66x66 centered (21dp margin) -->
+    <!-- Pill shape with clock indicator -->
+    <group android:translateX="21" android:translateY="21">
+        <!-- Pill body -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M9,0 L57,0 C62,0 66,4 66,9 L66,57 C66,62 62,66 57,66 L9,66 C4,66 0,62 0,57 L0,9 C0,4 4,0 9,0 Z" />
+        <!-- Pill division line -->
+        <path
+            android:fillColor="#0E9F8A"
+            android:pathData="M33,12 L33,54"
+            android:strokeWidth="3"
+            android:strokeColor="#0E9F8A"
+            android:strokeLineCap="round" />
+        <!-- Clock face -->
+        <path
+            android:fillColor="#0E9F8A"
+            android:pathData="M42,30 C42,23.37 36.63,18 30,18 C23.37,18 18,23.37 18,30 C18,36.63 23.37,42 30,42 C36.63,42 42,36.63 42,30 Z" />
+        <!-- Clock hands (pointing to ~8:00) -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,30 L30,20"
+            android:strokeWidth="2.5"
+            android:strokeColor="#FFFFFF"
+            android:strokeLineCap="round" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,30 L40,30"
+            android:strokeWidth="2"
+            android:strokeColor="#FFFFFF"
+            android:strokeLineCap="round" />
+        <!-- Center dot -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M28,28 L32,28 L32,32 L28,32 Z" />
+    </group>
+</vector>

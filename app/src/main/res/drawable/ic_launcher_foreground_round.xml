@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Round version - simplified pill with clock -->
+    <group android:translateX="15" android:translateY="15">
+        <!-- Circle background -->
+        <path
+            android:fillColor="#0E9F8A"
+            android:pathData="M39,0 C60.5,0 78,17.5 78,39 C78,60.5 60.5,78 39,78 C17.5,78 0,60.5 0,39 C0,17.5 17.5,0 39,0 Z" />
+        <!-- Pill icon white -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M18,39 C18,30.7 24.7,24 33,24 L45,24 C53.3,24 60,30.7 60,39 C60,47.3 53.3,54 45,54 L33,54 C24.7,54 18,47.3 18,39 Z" />
+        <!-- Division line -->
+        <path
+            android:fillColor="#0E9F8A"
+            android:pathData="M39,28 L39,50"
+            android:strokeWidth="3"
+            android:strokeColor="#0E9F8A"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

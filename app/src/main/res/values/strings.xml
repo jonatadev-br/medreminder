@@ -1,0 +1,107 @@
+<resources>
+    <string name="app_name">MedReminder</string>
+
+    <!-- Home Screen -->
+    <string name="home_title">Hoje</string>
+    <string name="home_empty_title">Nenhuma dose agendada</string>
+    <string name="home_empty_subtitle">Adicione seu primeiro medicamento para começar</string>
+    <string name="home_empty_button">Adicionar Medicamento</string>
+    <string name="dose_status_pending">Pendente</string>
+    <string name="dose_status_taken">Tomado</string>
+    <string name="dose_status_overdue">Atrasado</string>
+    <string name="dose_status_skipped">Pulado</string>
+    <string name="button_take">Tomar</string>
+    <string name="button_snooze">Adiar 10 min</string>
+    <string name="snackbar_taken">Marcado como tomado</string>
+    <string name="snackbar_snoozed">Adiado para 10 minutos</string>
+    <string name="snackbar_undone">Desfeito</string>
+
+    <!-- Add Medication -->
+    <string name="add_med_title">Novo Medicamento</string>
+    <string name="add_med_step_basic">Básico</string>
+    <string name="add_med_step_schedule">Agendamento</string>
+    <string name="add_med_step_appearance">Aparência</string>
+    <string name="label_name">Nome do remédio</string>
+    <string name="hint_name">Ex: Dipirona, Amoxicilina…</string>
+    <string name="label_dosage">Dosagem</string>
+    <string name="hint_dosage">Ex: 500mg, 1 comprimido, 10 gotas</string>
+    <string name="label_notes">Observações (opcional)</string>
+    <string name="hint_notes">Ex: Tomar em jejum, após refeição…</string>
+    <string name="label_schedule_type">Tipo de agendamento</string>
+    <string name="schedule_type_fixed">Horários fixos</string>
+    <string name="schedule_type_interval">Intervalo recorrente</string>
+    <string name="label_fixed_times">Horários (separados por vírgula)</string>
+    <string name="hint_fixed_times">Ex: 08:00, 20:00</string>
+    <string name="label_interval">Intervalo</string>
+    <string name="interval_6h">A cada 6 horas</string>
+    <string name="interval_8h">A cada 8 horas</string>
+    <string name="interval_12h">A cada 12 horas</string>
+    <string name="label_duration">Duração do tratamento</string>
+    <string name="duration_continuous">Uso contínuo</string>
+    <string name="duration_days">Por X dias</string>
+    <string name="hint_days">Número de dias</string>
+    <string name="label_color">Cor de identificação</string>
+    <string name="label_icon">Ícone</string>
+    <string name="button_save">Salvar</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="button_next">Próximo</string>
+    <string name="button_back">Voltar</string>
+    <string name="toast_fill_required">Preencha os campos obrigatórios</string>
+    <string name="toast_invalid_time">Formato de horário inválido (use HH:MM)</string>
+    <string name="toast_invalid_days">Número de dias inválido</string>
+    <string name="toast_saved">Medicamento salvo com sucesso</string>
+
+    <!-- History -->
+    <string name="history_title">Histórico</string>
+    <string name="history_empty_title">Nenhum registro ainda</string>
+    <string name="history_empty_subtitle">Seus medicamentos tomados e atrasados aparecerão aqui</string>
+    <string name="history_filter_all">Todos</string>
+    <string name="history_filter_taken">Tomados</string>
+    <string name="history_filter_overdue">Atrasados</string>
+    <string name="history_filter_skipped">Pulados</string>
+    <string name="button_export">Exportar Resumo</string>
+    <string name="export_title">Resumo do Tratamento</string>
+    <string name="export_generated">Gerado em %1$s</string>
+    <string name="export_period">Período: %1$s a %2$s</string>
+    <string name="export_shared">Resumo compartilhado</string>
+    <string name="export_failed">Falha ao exportar</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Configurações</string>
+    <string name="settings_theme">Tema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
+    <string name="theme_system">Sistema</string>
+    <string name="settings_permissions">Permissões</string>
+    <string name="perm_notifications">Notificações</string>
+    <string name="perm_exact_alarm">Alarmes exatos</string>
+    <string name="perm_granted">Concedida</string>
+    <string name="perm_denied">Negada</string>
+    <string name="button_open_settings">Abrir configurações</string>
+    <string name="button_test_notification">Testar notificação</string>
+    <string name="toast_notification_sent">Notificação de teste enviada</string>
+    <string name="settings_about">Sobre</string>
+    <string name="about_version">Versão 1.0.0</string>
+    <string name="about_description">Lembrete de medicamentos simples, confiável e offline.</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Lembretes de Medicação</string>
+    <string name="notification_channel_desc">Notificações de alta prioridade para horários de remédios</string>
+    <string name="notification_title">Hora do remédio</string>
+    <string name="notification_content">%1$s - %2$s</string>
+    <string name="action_take">Tomei</string>
+    <string name="action_snooze">Adiar 10 min</string>
+
+    <!-- Accessibility -->
+    <string name="a11y_dose_item">%1$s, %2$s, agendado para %3$s, status %4$s</string>
+    <string name="a11y_take_button">Marcar %1$s como tomado</string>
+    <string name="a11y_snooze_button">Adiar %1$s por 10 minutos</string>
+
+    <!-- Icons descriptions -->
+    <string name="icon_pill">Comprimido</string>
+    <string name="icon_capsule">Cápsula</string>
+    <string name="icon_drops">Gotas</string>
+    <string name="icon_syringe">Seringa</string>
+    <string name="icon_inhaler">Inalador</string>
+    <string name="icon_patch">Adesivo</string>
+</resources>

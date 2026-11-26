@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Accent: Health Teal (vitalidade, confiança) -->
+    <color name="accent">#0E9F8A</color>
+    <color name="accent_variant">#0CA67E</color>
+    <color name="on_accent">#FFFFFF</color>
+    <color name="accent_container">#E0F7F3</color>
+    <color name="on_accent_container">#003D35</color>
+
+    <!-- Neutral Surfaces -->
+    <color name="background">#F6F7F9</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F0F1F3</color>
+    <color name="surface_container_high">#E8EAED</color>
+    <color name="on_surface">#1A1A1A</color>
+    <color name="on_surface_variant">#4A4A4F</color>
+
+    <!-- Text -->
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#8A8A8E</color>
+    <color name="text_disabled">#C7C7CC</color>
+    <color name="text_on_accent">#FFFFFF</color>
+
+    <!-- Status Colors -->
+    <color name="status_taken">#1B7A43</color>
+    <color name="status_taken_bg">#E8F5EE</color>
+    <color name="status_overdue">#E0453A</color>
+    <color name="status_overdue_bg">#FDECEA</color>
+    <color name="status_pending">#F5A623</color>
+    <color name="status_pending_bg">#FFF8E1</color>
+    <color name="status_skipped">#8A8A8E</color>
+    <color name="status_skipped_bg">#F0F0F0</color>
+
+    <!-- Outlines / Dividers -->
+    <color name="outline">#EFEFF0</color>
+    <color name="outline_variant">#E0E0E3</color>
+
+    <!-- Error -->
+    <color name="error">#E0453A</color>
+    <color name="error_container">#FDECEA</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="on_error_container">#690005</color>
+
+    <!-- Medication Color Options (para escolha do usuário) -->
+    <color name="med_color_1">#0E9F8A</color> <!-- Teal -->
+    <color name="med_color_2">#2563EB</color> <!-- Blue -->
+    <color name="med_color_3">#7C3AED</color> <!-- Violet -->
+    <color name="med_color_4">#E0453A</color> <!-- Red -->
+    <color name="med_color_5">#F5A623</color> <!-- Amber -->
+    <color name="med_color_6">#1B7A43</color> <!-- Green -->
+    <color name="med_color_7">#8D5A3B</color> <!-- Brown -->
+    <color name="med_color_8">#EC4899</color> <!-- Pink -->
+
+    <!-- Adaptive Icon Background -->
+    <color name="ic_launcher_background">#0E9F8A</color>
+</resources>

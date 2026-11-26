@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Brand Accent: Health Teal (mantido, clareado 10% para contraste no escuro) -->
+    <color name="accent">#14D4B4</color>
+    <color name="accent_variant">#0E9F8A</color>
+    <color name="on_accent">#001F1B</color>
+    <color name="accent_container">#003D35</color>
+    <color name="on_accent_container">#A7F5E8</color>
+
+    <!-- Neutral Surfaces (Dark) -->
+    <color name="background">#121214</color>
+    <color name="surface">#1E1E20</color>
+    <color name="surface_variant">#2A2A2E</color>
+    <color name="surface_container_high">#333337</color>
+    <color name="on_surface">#F2F2F4</color>
+    <color name="on_surface_variant">#B4B4BB</color>
+
+    <!-- Text (Dark) -->
+    <color name="text_primary">#F2F2F4</color>
+    <color name="text_secondary">#9A9AA0</color>
+    <color name="text_disabled">#6E6E73</color>
+    <color name="text_on_accent">#001F1B</color>
+
+    <!-- Status Colors (Dark - ajustados para contraste) -->
+    <color name="status_taken">#4ADE80</color>
+    <color name="status_taken_bg">#0F2E1A</color>
+    <color name="status_overdue">#F87171</color>
+    <color name="status_overdue_bg">#2E0F0F</color>
+    <color name="status_pending">#FBBF24</color>
+    <color name="status_pending_bg">#2E2600</color>
+    <color name="status_skipped">#9A9AA0</color>
+    <color name="status_skipped_bg">#2A2A2E</color>
+
+    <!-- Outlines / Dividers (Dark) -->
+    <color name="outline">#2A2A2E</color>
+    <color name="outline_variant">#3D3D42</color>
+
+    <!-- Error (Dark) -->
+    <color name="error">#F87171</color>
+    <color name="error_container">#2E0F0F</color>
+    <color name="on_error">#000000</color>
+    <color name="on_error_container">#FDECEA</color>
+
+    <!-- Medication Color Options (mantidas iguais) -->
+    <color name="med_color_1">#14D4B4</color>
+    <color name="med_color_2">#60A5FA</color>
+    <color name="med_color_3">#A78BFA</color>
+    <color name="med_color_4">#F87171</color>
+    <color name="med_color_5">#FBBF24</color>
+    <color name="med_color_6">#4ADE80</color>
+    <color name="med_color_7">#A7856B</color>
+    <color name="med_color_8">#F472B6</color>
+
+    <!-- Adaptive Icon Background -->
+    <color name="ic_launcher_background">#0E9F8A</color>
+</resources>

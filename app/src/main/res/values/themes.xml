@@ -1,0 +1,165 @@
+<resources>
+    <style name="Theme.MedReminder" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Cores principais -->
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorPrimaryVariant">@color/accent_variant</item>
+        <item name="colorOnPrimary">@color/on_accent</item>
+        <item name="colorPrimaryContainer">@color/accent_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_accent_container</item>
+
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent_variant</item>
+        <item name="colorOnSecondary">@color/on_accent</item>
+        <item name="colorSecondaryContainer">@color/accent_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_accent_container</item>
+
+        <item name="colorError">@color/error</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="colorOnErrorContainer">@color/on_error_container</item>
+
+        <item name="colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_surface</item>
+
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <!-- Tipografia (Material 3) -->
+        <item name="android:textAppearanceHeadlineLarge">@style/TextAppearance.MedReminder.HeadlineLarge</item>
+        <item name="android:textAppearanceHeadlineMedium">@style/TextAppearance.MedReminder.HeadlineMedium</item>
+        <item name="android:textAppearanceHeadlineSmall">@style/TextAppearance.MedReminder.HeadlineSmall</item>
+        <item name="android:textAppearanceTitleLarge">@style/TextAppearance.MedReminder.TitleLarge</item>
+        <item name="android:textAppearanceTitleMedium">@style/TextAppearance.MedReminder.TitleMedium</item>
+        <item name="android:textAppearanceTitleSmall">@style/TextAppearance.MedReminder.TitleSmall</item>
+        <item name="android:textAppearanceBodyLarge">@style/TextAppearance.MedReminder.BodyLarge</item>
+        <item name="android:textAppearanceBodyMedium">@style/TextAppearance.MedReminder.BodyMedium</item>
+        <item name="android:textAppearanceBodySmall">@style/TextAppearance.MedReminder.BodySmall</item>
+        <item name="android:textAppearanceLabelLarge">@style/TextAppearance.MedReminder.LabelLarge</item>
+        <item name="android:textAppearanceLabelMedium">@style/TextAppearance.MedReminder.LabelMedium</item>
+        <item name="android:textAppearanceLabelSmall">@style/TextAppearance.MedReminder.LabelSmall</item>
+
+        <!-- Formas -->
+        <item name="shapeAppearanceCornerSmall">@style/ShapeAppearance.MedReminder.Small</item>
+        <item name="shapeAppearanceCornerMedium">@style/ShapeAppearance.MedReminder.Medium</item>
+        <item name="shapeAppearanceCornerLarge">@style/ShapeAppearance.MedReminder.Large</item>
+
+        <!-- Status bar / Navigation bar -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
+    <!-- Tipografia customizada -->
+    <style name="TextAppearance.MedReminder.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:letterSpacing">0.0</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.MedReminder.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.MedReminder.HeadlineSmall" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.MedReminder.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">22sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+    <style name="TextAppearance.MedReminder.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.009</item>
+    </style>
+    <style name="TextAppearance.MedReminder.TitleSmall" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.009</item>
+    </style>
+    <style name="TextAppearance.MedReminder.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.003</item>
+    </style>
+    <style name="TextAppearance.MedReminder.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.003</item>
+    </style>
+    <style name="TextAppearance.MedReminder.BodySmall" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontWeight">400</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.006</item>
+    </style>
+    <style name="TextAppearance.MedReminder.LabelLarge" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:letterSpacing">0.008</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+    <style name="TextAppearance.MedReminder.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+    <style name="TextAppearance.MedReminder.LabelSmall" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textSize">11sp</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Formas (Shape Appearance) -->
+    <style name="ShapeAppearance.MedReminder.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+    <style name="ShapeAppearance.MedReminder.Medium" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="ShapeAppearance.MedReminder.Large" parent="ShapeAppearance.Material3.LargeComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!-- Botão CTA principal (pill, 56dp altura) -->
+    <style name="Widget.MedReminder.Button.CTA" parent="Widget.Material3.Button">
+        <item name="cornerRadius">28dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:fontWeight">600</item>
+        <item name="android:letterSpacing">0.008</item>
+    </style>
+
+    <!-- Chip de status -->
+    <style name="Widget.MedReminder.Chip.Status" parent="Widget.Material3.Chip.Entry">
+        <item name="chipCornerRadius">12dp</item>
+        <item name="chipMinHeight">24dp</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontWeight">700</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+</resources>
