@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.jonataprezende.medreminder.MedReminderApplication
 import com.jonataprezende.medreminder.data.repository.MedRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,18 +20,19 @@ class BootReceiver : BroadcastReceiver() {
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
             "android.intent.action.QUICKBOOT_POWERON" -> {
-                // Inicializa o repository e reagenda alarmes
+                val appContext = context.applicationContext
+                val pendingResult = goAsync()
                 CoroutineScope(Dispatchers.IO).launch {
-                    val repository = MedRepository.getInstance(context.applicationContext as MedReminderApplication)
-                    
-                    // 1. Regenera DoseLogs para todos os schedules ativos
-                    repository.regenerateAllDoseLogs()
-                    
-                    // 2. Agenda alarmes para todas as doses pendentes futuras
-                    val alarmScheduler = AlarmScheduler.getInstance(context.applicationContext as MedReminderApplication)
-                    alarmScheduler.rescheduleAll()
-                    
-                    Log.d(TAG, "Reagendamento completo após boot")
+                    try {
+                        val repository = MedRepository.getInstance(appContext)
+                        repository.regenerateAllDoseLogs()
+                        AlarmScheduler.getInstance(appContext).rescheduleAll()
+                        Log.d(TAG, "Reagendamento completo após boot")
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Erro no reagendamento pós-boot", e)
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
             }
         }

@@ -1,53 +1,63 @@
 package com.jonataprezende.medreminder.ui.addmed
 
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jonataprezende.medreminder.R
+import com.jonataprezende.medreminder.alarm.AlarmScheduler
 import com.jonataprezende.medreminder.data.entity.Medication
 import com.jonataprezende.medreminder.data.entity.Schedule
 import com.jonataprezende.medreminder.data.entity.ScheduleType
 import com.jonataprezende.medreminder.data.repository.MedRepository
-import com.jonataprezende.medreminder.ui.components.CommonComponents.CTAButton
-import com.jonataprezende.medreminder.ui.components.CommonComponents.MedReminderCard
-import com.jonataprezende.medreminder.ui.components.CommonComponents.MedicationColorCircle
-import com.jonataprezende.medreminder.ui.components.CommonComponents.SectionHeader
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.jonataprezende.medreminder.ui.components.CTAButton
+import com.jonataprezende.medreminder.ui.components.getMedicationIcon
+import com.jonataprezende.medreminder.ui.components.parseColor
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 
@@ -59,38 +69,34 @@ fun AddMedicationScreen(
     onSaved: () -> Unit
 ) {
     val context = LocalContext.current
-    var step by remember { mutableStateOf(1) }
-    
-    // Step 1: Basic info
+    val scope = rememberCoroutineScope()
+    val alarmScheduler = remember { AlarmScheduler.getInstance(context) }
+
     var name by remember { mutableStateOf("") }
     var dosage by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
-    
-    // Step 2: Schedule
     var scheduleType by remember { mutableStateOf(ScheduleType.FIXED_TIME) }
-    var fixedTimes by remember { mutableStateOf("") }
+    var timesText by remember { mutableStateOf("") }
     var intervalHours by remember { mutableStateOf(8) }
     var durationType by remember { mutableStateOf(DurationType.CONTINUOUS) }
-    var durationDays by remember { mutableStateOf("") }
-    
-    // Step 3: Appearance
-    var selectedColor by remember { mutableStateOf("#0E9F8A") }
-    var selectedIcon by remember { mutableStateOf("pill") }
-    
-    val colorOptions = listOf("#0E9F8A", "#2563EB", "#7C3AED", "#E0453A", "#F5A623", "#1B7A43", "#8D5A3B", "#EC4899")
-    val iconOptions = listOf("pill", "capsule", "drops", "syringe", "inhaler", "patch")
-    val intervalOptions = listOf(6 to "A cada 6 horas", 8 to "A cada 8 horas", 12 to "A cada 12 horas")
+    var daysText by remember { mutableStateOf("") }
+    var colorHex by remember { mutableStateOf("#0E9F8A") }
+    var iconName by remember { mutableStateOf("pill") }
+    var saving by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Top
-    ) {
-        // Top App Bar
+    val colorOptions = listOf(
+        "#0E9F8A", "#2563EB", "#7C3AED", "#E0453A",
+        "#F5A623", "#1B7A43", "#8D5A3B", "#EC4899"
+    )
+    val iconOptions = listOf("pill", "capsule", "drops", "syringe", "inhaler", "patch")
+    val intervalOptions = listOf(6, 8, 12)
+
+    Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
             title = { Text(text = stringResource(R.string.add_med_title)) },
             navigationIcon = {
-                IconButton(onClick = { if (step > 1) step-- else onBack() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.button_back))
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.button_back))
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -98,451 +104,315 @@ fun AddMedicationScreen(
             )
         )
 
-        // Progress indicator
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp, 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            (1..3).forEach { s ->
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(4.dp)
-                        .background(
-                            if (s <= step) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.outlineVariant
-                        )
-                )
-                if (s < 3) androidx.compose.foundation.layout.Spacer(Modifier.width(8.dp))
-            }
-        }
+            FormLabel(stringResource(R.string.add_med_step_basic))
 
-        // Content
-        androidx.compose.foundation.layout.Box(modifier = Modifier.weight(1f).fillMaxWidth().padding(16.dp)) {
-            when (step) {
-                1 -> StepBasicInfo(
-                    name = name, onNameChange = { name = it },
-                    dosage = dosage, onDosageChange = { dosage = it },
-                    notes = notes, onNotesChange = { notes = it },
-                    onNext = { 
-                        if (name.isNotBlank() && dosage.isNotBlank()) step = 2 
-                        else showToast(context, stringResource(R.string.toast_fill_required))
-                    }
-                )
-                2 -> StepSchedule(
-                    scheduleType = scheduleType, onScheduleTypeChange = { scheduleType = it },
-                    fixedTimes = fixedTimes, onFixedTimesChange = { fixedTimes = it },
-                    intervalHours = intervalHours, onIntervalHoursChange = { intervalHours = it },
-                    durationType = durationType, onDurationTypeChange = { durationType = it },
-                    durationDays = durationDays, onDurationDaysChange = { durationDays = it },
-                    intervalOptions = intervalOptions,
-                    onBack = { step = 1 },
-                    onNext = { 
-                        val valid = when (scheduleType) {
-                            ScheduleType.FIXED_TIME -> fixedTimes.isNotBlank() && validateTimes(fixedTimes)
-                            ScheduleType.INTERVAL -> true
-                        }
-                        val durationValid = durationType != DurationType.DAYS || durationDays.toIntOrNull()?.let { it > 0 } == true
-                        if (valid && durationValid) step = 3
-                        else if (!valid) showToast(context, stringResource(R.string.toast_invalid_time))
-                        else showToast(context, stringResource(R.string.toast_invalid_days))
-                    }
-                )
-                3 -> StepAppearance(
-                    selectedColor = selectedColor, onColorChange = { selectedColor = it },
-                    selectedIcon = selectedIcon, onIconChange = { selectedIcon = it },
-                    colorOptions = colorOptions,
-                    iconOptions = iconOptions,
-                    onBack = { step = 2 },
-                    onSave = {
-                        saveMedication(
-                            repository, context,
-                            name, dosage, notes,
-                            scheduleType, fixedTimes, intervalHours,
-                            durationType, durationDays,
-                            selectedColor, selectedIcon,
-                            onSaved
-                        )
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun StepBasicInfo(
-    name: String, onNameChange: (String) -> Unit,
-    dosage: String, onDosageChange: (String) -> Unit,
-    notes: String, onNotesChange: (String) -> Unit,
-    onNext: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        SectionHeader(stringResource(R.string.add_med_step_basic))
-        
-        OutlinedTextField(
-            value = name,
-            onValueChange = onNameChange,
-            label = { Text(stringResource(R.string.label_name)) },
-            placeholder = { Text(stringResource(R.string.hint_name)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        
-        OutlinedTextField(
-            value = dosage,
-            onValueChange = onDosageChange,
-            label = { Text(stringResource(R.string.label_dosage)) },
-            placeholder = { Text(stringResource(R.string.hint_dosage)) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-        
-        OutlinedTextField(
-            value = notes,
-            onValueChange = onNotesChange,
-            label = { Text(stringResource(R.string.label_notes)) },
-            placeholder = { Text(stringResource(R.string.hint_notes)) },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3,
-            maxLines = 4
-        )
-        
-        androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
-        CTAButton(text = stringResource(R.string.button_next), onClick = onNext)
-    }
-}
-
-@Composable
-fun StepSchedule(
-    scheduleType: ScheduleType, onScheduleTypeChange: (ScheduleType) -> Unit,
-    fixedTimes: String, onFixedTimesChange: (String) -> Unit,
-    intervalHours: Int, onIntervalHoursChange: (Int) -> Unit,
-    durationType: DurationType, onDurationTypeChange: (DurationType) -> Unit,
-    durationDays: String, onDurationDaysChange: (String) -> Unit,
-    intervalOptions: List<Pair<Int, String>>,
-    onBack: () -> Unit,
-    onNext: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        SectionHeader(stringResource(R.string.add_med_step_schedule))
-        
-        // Schedule type tabs
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            ScheduleTab(
-                label = stringResource(R.string.schedule_type_fixed),
-                selected = scheduleType == ScheduleType.FIXED_TIME,
-                onClick = { onScheduleTypeChange(ScheduleType.FIXED_TIME) }
-            )
-            ScheduleTab(
-                label = stringResource(R.string.schedule_type_interval),
-                selected = scheduleType == ScheduleType.INTERVAL,
-                onClick = { onScheduleTypeChange(ScheduleType.INTERVAL) }
-            )
-        }
-        
-        if (scheduleType == ScheduleType.FIXED_TIME) {
             OutlinedTextField(
-                value = fixedTimes,
-                onValueChange = onFixedTimesChange,
-                label = { Text(stringResource(R.string.label_fixed_times)) },
-                placeholder = { Text(stringResource(R.string.hint_fixed_times)) },
+                value = name,
+                onValueChange = { name = it },
+                label = { Text(stringResource(R.string.label_name)) },
+                placeholder = { Text(stringResource(R.string.hint_name)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
-        } else {
-            Text(text = stringResource(R.string.label_interval), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp))
-            LazyRow(
+
+            OutlinedTextField(
+                value = dosage,
+                onValueChange = { dosage = it },
+                label = { Text(stringResource(R.string.label_dosage)) },
+                placeholder = { Text(stringResource(R.string.hint_dosage)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text(stringResource(R.string.label_notes)) },
+                placeholder = { Text(stringResource(R.string.hint_notes)) },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2,
+                maxLines = 4
+            )
+
+            FormLabel(stringResource(R.string.add_med_step_schedule))
+
+            Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(intervalOptions) { (hours, label) ->
-                    IntervalChip(
-                        label = label,
-                        selected = intervalHours == hours,
-                        onClick = { onIntervalHoursChange(hours) }
+                SelectChip(
+                    label = stringResource(R.string.schedule_type_fixed),
+                    selected = scheduleType == ScheduleType.FIXED_TIME,
+                    onClick = { scheduleType = ScheduleType.FIXED_TIME }
+                )
+                SelectChip(
+                    label = stringResource(R.string.schedule_type_interval),
+                    selected = scheduleType == ScheduleType.INTERVAL,
+                    onClick = { scheduleType = ScheduleType.INTERVAL }
+                )
+            }
+
+            if (scheduleType == ScheduleType.FIXED_TIME) {
+                OutlinedTextField(
+                    value = timesText,
+                    onValueChange = { timesText = it },
+                    label = { Text(stringResource(R.string.label_fixed_times)) },
+                    placeholder = { Text(stringResource(R.string.hint_fixed_times)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            } else {
+                FormLabel(stringResource(R.string.label_interval))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    intervalOptions.forEach { hours ->
+                        SelectChip(
+                            label = "A cada ${hours}h",
+                            selected = intervalHours == hours,
+                            onClick = { intervalHours = hours }
+                        )
+                    }
+                }
+            }
+
+            FormLabel(stringResource(R.string.label_duration))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SelectChip(
+                    label = stringResource(R.string.duration_continuous),
+                    selected = durationType == DurationType.CONTINUOUS,
+                    onClick = { durationType = DurationType.CONTINUOUS }
+                )
+                SelectChip(
+                    label = stringResource(R.string.duration_days),
+                    selected = durationType == DurationType.DAYS,
+                    onClick = { durationType = DurationType.DAYS }
+                )
+            }
+
+            if (durationType == DurationType.DAYS) {
+                OutlinedTextField(
+                    value = daysText,
+                    onValueChange = { input -> daysText = input.filter { it.isDigit() } },
+                    label = { Text(stringResource(R.string.hint_days)) },
+                    placeholder = { Text("Ex: 10") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+
+            FormLabel(stringResource(R.string.add_med_step_appearance))
+
+            Text(
+                text = stringResource(R.string.label_color),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(colorOptions) { color ->
+                    ColorCircle(
+                        colorHex = color,
+                        selected = colorHex == color,
+                        onClick = { colorHex = color }
                     )
                 }
             }
-        }
-        
-        // Duration
-        SectionHeader(stringResource(R.string.label_duration))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            DurationTab(
-                label = stringResource(R.string.duration_continuous),
-                selected = durationType == DurationType.CONTINUOUS,
-                onClick = { onDurationTypeChange(DurationType.CONTINUOUS) }
-            )
-            DurationTab(
-                label = stringResource(R.string.duration_days),
-                selected = durationType == DurationType.DAYS,
-                onClick = { onDurationTypeChange(DurationType.DAYS) }
-            )
-        }
-        
-        if (durationType == DurationType.DAYS) {
-            OutlinedTextField(
-                value = durationDays,
-                onValueChange = onDurationDaysChange,
-                label = { Text(stringResource(R.string.hint_days)) },
-                placeholder = { Text("Ex: 10") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = androidx.compose.ui.text.input.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number)
-            )
-        }
-        
-        androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            androidx.compose.material3.OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.weight(1f).height(56.dp),
-                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Text(stringResource(R.string.button_back), fontWeight = FontWeight.W600)
-            }
-            CTAButton(text = stringResource(R.string.button_next), onClick = onNext, modifier = Modifier.weight(1f))
-        }
-    }
-}
 
-@Composable
-fun StepAppearance(
-    selectedColor: String, onColorChange: (String) -> Unit,
-    selectedIcon: String, onIconChange: (String) -> Unit,
-    colorOptions: List<String>,
-    iconOptions: List<String>,
-    onBack: () -> Unit,
-    onSave: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        SectionHeader(stringResource(R.string.add_med_step_appearance))
-        
-        Text(text = stringResource(R.string.label_color), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp))
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(colorOptions) { color ->
-                ColorCircle(
-                    colorHex = color,
-                    selected = selectedColor == color,
-                    onClick = { onColorChange(color) }
-                )
-            }
-        }
-        
-        Text(text = stringResource(R.string.label_icon), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp))
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(iconOptions) { icon ->
-                IconCircle(
-                    iconName = icon,
-                    colorHex = selectedColor,
-                    selected = selectedIcon == icon,
-                    onClick = { onIconChange(icon) }
-                )
-            }
-        }
-        
-        // Preview
-        MedReminderCard {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                com.jonataprezende.medreminder.ui.components.CommonComponents.MedicationColorIcon(
-                    colorHex = selectedColor,
-                    iconName = selectedIcon,
-                    modifier = Modifier.size(48.dp)
-                )
-                androidx.compose.foundation.layout.Spacer(Modifier.width(12.dp))
-                Column {
-                    Text("Nome do remédio", fontSize = 16.sp, fontWeight = FontWeight.W600)
-                    Text("Dosagem • 08:00, 20:00", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                text = stringResource(R.string.label_icon),
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(iconOptions) { icon ->
+                    IconCircle(
+                        iconName = icon,
+                        colorHex = colorHex,
+                        selected = iconName == icon,
+                        onClick = { iconName = icon }
+                    )
                 }
             }
-        }
-        
-        androidx.compose.foundation.layout.Spacer(Modifier.weight(1f))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            androidx.compose.material3.OutlinedButton(
-                onClick = onBack,
-                modifier = Modifier.weight(1f).height(56.dp),
-                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            ) {
-                Text(stringResource(R.string.button_back), fontWeight = FontWeight.W600)
-            }
-            CTAButton(text = stringResource(R.string.button_save), onClick = onSave, modifier = Modifier.weight(1f))
+
+            CTAButton(
+                text = stringResource(R.string.button_save),
+                enabled = !saving,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 24.dp),
+                onClick = {
+                    val timeList = if (scheduleType == ScheduleType.FIXED_TIME) {
+                        parseTimesInput(timesText)
+                    } else emptyList()
+                    val days = if (durationType == DurationType.DAYS) daysText.toIntOrNull() else null
+                    val nameValid = name.isNotBlank() && dosage.isNotBlank()
+                    val timesValid = scheduleType != ScheduleType.FIXED_TIME || timeList.isNotEmpty()
+                    val daysValid = durationType != DurationType.DAYS || (days != null && days > 0)
+
+                    when {
+                        !nameValid -> toast(context, context.getString(R.string.toast_fill_required))
+                        !timesValid -> toast(context, context.getString(R.string.toast_invalid_time))
+                        !daysValid -> toast(context, context.getString(R.string.toast_invalid_days))
+                        else -> {
+                            saving = true
+                            scope.launch {
+                                saveMedication(
+                                    repository = repository,
+                                    alarmScheduler = alarmScheduler,
+                                    name = name,
+                                    dosage = dosage,
+                                    notes = notes,
+                                    scheduleType = scheduleType,
+                                    timeList = timeList,
+                                    intervalHours = intervalHours,
+                                    days = days,
+                                    colorHex = colorHex,
+                                    iconName = iconName
+                                )
+                                saving = false
+                                onSaved()
+                            }
+                        }
+                    }
+                }
+            )
         }
     }
 }
 
 @Composable
-fun ScheduleTab(label: String, selected: Boolean, onClick: () -> Unit) {
-    androidx.compose.material3.TextButton(
-        onClick = onClick,
-        modifier = Modifier.weight(1f).height(48.dp),
-        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
-            contentColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    ) {
-        Text(text = label, fontWeight = FontWeight.W600)
-    }
+private fun FormLabel(text: String) {
+    Text(
+        text = text.uppercase(),
+        fontSize = 11.sp,
+        fontWeight = FontWeight.W700,
+        letterSpacing = 0.08.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp)
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntervalChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    androidx.compose.material3.FilterChip(
+private fun SelectChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    FilterChip(
         selected = selected,
         onClick = onClick,
         label = { Text(label, fontSize = 13.sp) },
-        colors = androidx.compose.material3.ChipDefaults.filterChipColors(
-            containerColor = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
             selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
         )
     )
 }
 
 @Composable
-fun DurationTab(label: String, selected: Boolean, onClick: () -> Unit) {
-    androidx.compose.material3.TextButton(
-        onClick = onClick,
-        modifier = Modifier.weight(1f).height(48.dp),
-        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
-            contentColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-        )
+private fun ColorCircle(colorHex: String, selected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .background(parseColor(colorHex))
+            .border(
+                width = if (selected) 3.dp else 0.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = CircleShape
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
     ) {
-        Text(text = label, fontWeight = FontWeight.W600)
+        if (selected) {
+            Icon(
+                imageVector = Icons.Filled.Check,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(22.dp)
+            )
+        }
     }
 }
 
 @Composable
-fun ColorCircle(colorHex: String, selected: Boolean, onClick: () -> Unit) {
-    val color = try { android.graphics.Color.parseColor(colorHex) } catch (e: Exception) { MaterialTheme.colorScheme.primary.toArgb() }
+private fun IconCircle(iconName: String, colorHex: String, selected: Boolean, onClick: () -> Unit) {
+    val shape = RoundedCornerShape(14.dp)
     Box(
         modifier = Modifier
-            .size(40.dp)
-            .clip(RoundedCornerShape(50))
-            .background(Color(color))
-            .border(if (selected) 3.dp else 0.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
-            .padding(if (selected) 0.dp else 2.dp)
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
-            .then(androidx.compose.foundation.interaction.MutableInteractionSource())
-            .then(androidx.compose.foundation.clickable(onClick))
-    )
-}
-
-@Composable
-fun IconCircle(iconName: String, colorHex: String, selected: Boolean, onClick: () -> Unit) {
-    val color = try { android.graphics.Color.parseColor(colorHex) } catch (e: Exception) { MaterialTheme.colorScheme.primary.toArgb() }
-    Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(color))
-            .border(if (selected) 3.dp else 0.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp))
-            .padding(if (selected) 0.dp else 2.dp)
-            .fillMaxWidth()
-            .wrapContentSize(Alignment.Center)
-            .then(androidx.compose.foundation.interaction.MutableInteractionSource())
-            .then(androidx.compose.foundation.clickable(onClick))
+            .size(52.dp)
+            .clip(shape)
+            .background(parseColor(colorHex))
+            .border(
+                width = if (selected) 3.dp else 0.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = shape
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = getMedicationIcon(iconName),
             contentDescription = null,
             tint = Color.White,
-            modifier = Modifier.size(24.dp).align(Alignment.Center)
+            modifier = Modifier.size(28.dp)
         )
     }
 }
 
-private fun getMedicationIcon(iconName: String): ImageVector {
-    return when (iconName) {
-        "capsule" -> Icons.Medical.Capsule
-        "drops" -> Icons.Medical.Drops
-        "syringe" -> Icons.Medical.Syringe
-        "inhaler" -> Icons.Medical.Inhaler
-        "patch" -> Icons.Medical.Patch
-        else -> Icons.Medical.Pill
-    }
-}
-
-private fun validateTimes(timesStr: String): Boolean {
-    val times = timesStr.split(",").map { it.trim() }
-    return times.all { time ->
-        time.matches("\\d{2}:\\d{2}".toRegex()) && 
-        time.split(":").let { (h, m) -> h.toIntOrNull()?.inRange(0, 23) == true && m.toIntOrNull()?.inRange(0, 59) == true }
-    }
-}
-
-private fun showToast(context: android.content.Context, message: String) {
-    android.widget.Toast.makeText(context, message, android.widget.Toast.LENGTH_SHORT).show()
+private fun parseTimesInput(input: String): List<String> {
+    return input
+        .split(",", ";", " ")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .mapNotNull { token ->
+            val parts = token.split(":")
+            if (parts.size == 2) {
+                val hour = parts[0].toIntOrNull()
+                val minute = parts[1].toIntOrNull()
+                if (hour != null && minute != null && hour in 0..23 && minute in 0..59) {
+                    String.format("%02d:%02d", hour, minute)
+                } else null
+            } else null
+        }
 }
 
 private suspend fun saveMedication(
     repository: MedRepository,
-    context: android.content.Context,
-    name: String, dosage: String, notes: String,
-    scheduleType: ScheduleType, fixedTimes: String, intervalHours: Int,
-    durationType: DurationType, durationDays: String,
-    selectedColor: String, selectedIcon: String,
-    onSaved: () -> Unit
+    alarmScheduler: AlarmScheduler,
+    name: String,
+    dosage: String,
+    notes: String,
+    scheduleType: ScheduleType,
+    timeList: List<String>,
+    intervalHours: Int,
+    days: Int?,
+    colorHex: String,
+    iconName: String
 ) {
     val medication = Medication(
-        name = name,
-        dosage = dosage,
-        notes = notes,
-        colorHex = selectedColor,
-        iconRes = selectedIcon
+        name = name.trim(),
+        dosage = dosage.trim(),
+        notes = notes.trim(),
+        colorHex = colorHex,
+        iconRes = iconName
     )
-    
     val medicationId = repository.insertMedication(medication)
-    
+
     val startDate = System.currentTimeMillis()
-    val endDate = if (durationType == DurationType.DAYS) {
-        durationDays.toIntOrNull()?.let { days ->
-            val cal = java.util.Calendar.getInstance()
-            cal.timeInMillis = startDate
-            cal.add(java.util.Calendar.DAY_OF_MONTH, days)
-            cal.timeInMillis
-        } ?: 0
-    } else 0
-    
-    val timesJson = if (scheduleType == ScheduleType.FIXED_TIME) {
-        JSONArray(fixedTimes.split(",").map { it.trim() }).toString()
-    } else "[]"
-    
+    val endDate = if (days != null) startDate + days * 24L * 60 * 60 * 1000 else 0L
+    val timesJson = if (scheduleType == ScheduleType.FIXED_TIME) JSONArray(timeList).toString() else "[]"
+
     val schedule = Schedule(
         medicationId = medicationId,
         type = scheduleType,
@@ -551,35 +421,16 @@ private suspend fun saveMedication(
         startDate = startDate,
         endDate = endDate
     )
-    
-    val scheduleId = repository.insertSchedule(schedule)
-    
-    // Gera dose logs e agenda alarmes
-    val savedMed = repository.getMedicationById(medicationId)!!
-    val savedSchedule = repository.getDoseLogsBySchedule(scheduleId).firstOrNull()?.let { 
-        // Precisa buscar o schedule completo
-        repository.getDoseLogsBySchedule(scheduleId) 
-    }?.firstOrNull()?.let { _ -> 
-        // Workaround: busca o schedule recém-criado
-        null
+    repository.insertSchedule(schedule)
+
+    val savedSchedule = repository.getActiveSchedulesByMedication(medicationId).firstOrNull()
+    if (savedSchedule != null) {
+        alarmScheduler.rescheduleForSchedule(savedSchedule)
     }
-    // Melhor: usar o repository.generateDoseLogsForSchedule
-    // Mas precisamos do objeto Schedule completo
-    // Vamos buscar pela medicationId
-    val schedules = repository.getActiveSchedulesByMedication(medicationId)
-    for (s in schedules) {
-        repository.generateDoseLogsForSchedule(s, savedMed)
-    }
-    
-    // Agenda alarmes
-    val alarmScheduler = com.jonataprezende.medreminder.alarm.AlarmScheduler.getInstance(
-        context.applicationContext as com.jonataprezende.medreminder.MedReminderApplication
-    )
-    for (s in schedules) {
-        alarmScheduler.rescheduleForSchedule(s)
-    }
-    
-    onSaved()
+}
+
+private fun toast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
 }
 
 enum class DurationType {

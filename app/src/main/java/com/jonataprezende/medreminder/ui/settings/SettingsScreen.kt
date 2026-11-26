@@ -1,22 +1,30 @@
 package com.jonataprezende.medreminder.ui.settings
 
+import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -27,43 +35,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jonataprezende.medreminder.R
-import com.jonataprezende.medreminder.ui.components.CommonComponents.CTAButton
-import com.jonataprezende.medreminder.ui.components.CommonComponents.MedReminderCard
-import com.jonataprezende.medreminder.ui.components.CommonComponents.SectionHeader
+import com.jonataprezende.medreminder.alarm.NotificationHelper
+import com.jonataprezende.medreminder.ui.components.CTAButton
+import com.jonataprezende.medreminder.ui.components.MedReminderCard
+import com.jonataprezende.medreminder.ui.components.SectionHeader
 import com.jonataprezende.medreminder.util.PermissionUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
+private const val PREFS_NAME = "medreminder_prefs"
+private const val KEY_THEME = "theme_mode"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(
-    onBack: () -> Unit
-) {
+fun SettingsScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    var darkTheme by remember { mutableStateOf(false) }
-    
-    val notificationPerm by remember { mutableStateOf(PermissionUtils.hasNotificationPermission(context)) }
-    val exactAlarmPerm by remember { mutableStateOf(PermissionUtils.hasExactAlarmPermission(context)) }
-
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        darkTheme = (context.getSystemService(android.content.Context.UI_MODE_SERVICE) as android.app.UiModeManager).nightMode == android.app.UiModeManager.MODE_NIGHT_YES
-    }
+    val prefs = remember { context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
+    var themeMode by remember { mutableStateOf(prefs.getString(KEY_THEME, "system") ?: "system") }
+    var notificationGranted by remember { mutableStateOf(PermissionUtils.hasNotificationPermission(context)) }
+    var exactAlarmGranted by remember { mutableStateOf(PermissionUtils.hasExactAlarmPermission(context)) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(R.string.settings_title), fontSize = 20.sp, fontWeight = FontWeight.W600) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.W600
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.button_back))
+                        Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.button_back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -76,79 +84,68 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
         ) {
-            // Theme section
             SectionHeader(stringResource(R.string.settings_theme))
             MedReminderCard {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("Tema do aplicativo", fontSize = 16.sp, fontWeight = FontWeight.W500)
-                        Text("Escolha entre claro, escuro ou sistema", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    androidx.compose.material3.SegmentedButton(
-                        selected = { darkTheme },
-                        onClick = { 
-                            // Toggle theme - em produção usaria AppCompatDelegate
-                            darkTheme = !darkTheme
-                            // Aplica tema
-                            val delegate = androidx.appcompat.app.AppCompatDelegate
-                            delegate.setDefaultNightMode(
-                                if (darkTheme) delegate.MODE_NIGHT_YES else delegate.MODE_NIGHT_NO
-                            )
-                        },
-                        single = true
-                    ) {
-                        androidx.compose.material3.SegmentedButtonItem(
-                            label = { Text(stringResource(R.string.theme_light)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        androidx.compose.material3.SegmentedButtonItem(
-                            label = { Text(stringResource(R.string.theme_dark)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        androidx.compose.material3.SegmentedButtonItem(
-                            label = { Text(stringResource(R.string.theme_system)) },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Text(
+                        text = "Tema do aplicativo",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.W500
+                    )
+                    Text(
+                        text = "Claro, escuro ou seguir o sistema",
+                        fontSize = 13.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ThemeChip(stringResource(R.string.theme_light), themeMode == "light") {
+                            themeMode = "light"
+                            applyTheme(context, prefs, "light")
+                        }
+                        ThemeChip(stringResource(R.string.theme_dark), themeMode == "dark") {
+                            themeMode = "dark"
+                            applyTheme(context, prefs, "dark")
+                        }
+                        ThemeChip(stringResource(R.string.theme_system), themeMode == "system") {
+                            themeMode = "system"
+                            applyTheme(context, prefs, "system")
+                        }
                     }
                 }
             }
-            
-            // Permissions section
+
             SectionHeader(stringResource(R.string.settings_permissions))
             MedReminderCard {
                 PermissionRow(
                     title = stringResource(R.string.perm_notifications),
-                    subtitle = if (notificationPerm) stringResource(R.string.perm_granted) else stringResource(R.string.perm_denied),
-                    granted = notificationPerm,
-                    onRequest = { 
-                        if (!notificationPerm) {
-                            PermissionUtils.requestNotificationPermission(context as android.app.Activity)
+                    granted = notificationGranted,
+                    onRequest = {
+                        val activity = context as? Activity
+                        if (!notificationGranted && activity != null) {
+                            PermissionUtils.requestNotificationPermission(activity)
                         } else {
                             PermissionUtils.openAppSettings(context)
                         }
                     }
                 )
-                androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(8.dp))
                 PermissionRow(
                     title = stringResource(R.string.perm_exact_alarm),
-                    subtitle = if (exactAlarmPerm) stringResource(R.string.perm_granted) else stringResource(R.string.perm_denied),
-                    granted = exactAlarmPerm,
-                    onRequest = { 
-                        if (!exactAlarmPerm) {
-                            PermissionUtils.requestExactAlarmPermission(context as android.app.Activity)
+                    granted = exactAlarmGranted,
+                    onRequest = {
+                        val activity = context as? Activity
+                        if (!exactAlarmGranted && activity != null) {
+                            PermissionUtils.requestExactAlarmPermission(activity)
                         } else {
                             PermissionUtils.openAppSettings(context)
                         }
                     }
                 )
             }
-            
-            // Test notification
+
             SectionHeader("Teste")
             MedReminderCard {
                 Row(
@@ -156,21 +153,24 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("Testar notificação", fontSize = 16.sp, fontWeight = FontWeight.W500)
-                        Text("Envia uma notificação de teste para verificar som e vibração", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = "Envia uma notificação de teste para verificar som e vibração",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    CTAButton(
-                        text = stringResource(R.string.button_test_notification),
-                        onClick = { 
-                            com.jonataprezende.medreminder.alarm.NotificationHelper.showTestNotification(context)
-                        },
-                        modifier = Modifier.width(200.dp)
-                    )
+                    Spacer(Modifier.width(12.dp))
+                    Button(
+                        onClick = { NotificationHelper.showTestNotification(context) },
+                        shape = MaterialTheme.shapes.large
+                    ) {
+                        Text("Testar", fontSize = 13.sp, fontWeight = FontWeight.W600)
+                    }
                 }
             }
-            
-            // About
+
             SectionHeader(stringResource(R.string.settings_about))
             MedReminderCard {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
@@ -179,9 +179,13 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text("Versão", fontSize = 16.sp)
-                        Text(stringResource(R.string.about_version), fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = stringResource(R.string.about_version),
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    androidx.compose.foundation.layout.Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(
                         text = stringResource(R.string.about_description),
                         fontSize = 13.sp,
@@ -189,26 +193,48 @@ fun SettingsScreen(
                     )
                 }
             }
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionRow(
+private fun ThemeChip(label: String, selected: Boolean, onClick: () -> Unit) {
+    FilterChip(
+        selected = selected,
+        onClick = onClick,
+        label = { Text(label, fontSize = 13.sp) },
+        colors = FilterChipDefaults.filterChipColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    )
+}
+
+@Composable
+private fun PermissionRow(
     title: String,
-    subtitle: String,
     granted: Boolean,
     onRequest: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(title, fontSize = 16.sp, fontWeight = FontWeight.W500)
-            Text(subtitle, fontSize = 13.sp, color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
+            Text(
+                text = if (granted) "Concedida" else "Negada",
+                fontSize = 13.sp,
+                color = if (granted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            )
         }
+        Spacer(Modifier.width(12.dp))
         Button(
             onClick = onRequest,
             colors = ButtonDefaults.buttonColors(
@@ -217,7 +243,16 @@ fun PermissionRow(
             ),
             shape = MaterialTheme.shapes.large
         ) {
-            Text(if (granted) "Configurações" else "Conceder", fontSize = 13.sp, fontWeight = FontWeight.W600)
+            Text(
+                text = if (granted) "Configurações" else "Conceder",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.W600
+            )
         }
     }
+}
+
+private fun applyTheme(context: Context, prefs: SharedPreferences, mode: String) {
+    prefs.edit().putString(KEY_THEME, mode).apply()
+    (context as? Activity)?.recreate()
 }

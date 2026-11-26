@@ -1,14 +1,13 @@
 package com.jonataprezende.medreminder.util
 
+import org.json.JSONArray
 import java.util.Calendar
 import java.util.TimeZone
 
 object DateTimeUtils {
     private const val DAY_MS = 24 * 60 * 60 * 1000L
 
-    fun getCalendar(): Calendar {
-        return Calendar.getInstance(TimeZone.getDefault())
-    }
+    fun getCalendar(): Calendar = Calendar.getInstance(TimeZone.getDefault())
 
     fun startOfDay(timestamp: Long): Long {
         val cal = getCalendar()
@@ -33,23 +32,24 @@ object DateTimeUtils {
     fun formatTime(timestamp: Long): String {
         val cal = getCalendar()
         cal.timeInMillis = timestamp
-        return "${cal.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')}:${cal.get(Calendar.MINUTE).toString().padStart(2, '0')}"
+        return "${cal.get(Calendar.HOUR_OF_DAY).toString().padStart(2, '0')}:" +
+            cal.get(Calendar.MINUTE).toString().padStart(2, '0')
     }
 
     fun formatDate(timestamp: Long): String {
         val cal = getCalendar()
         cal.timeInMillis = timestamp
-        return "${cal.get(Calendar.DAY_OF_MONTH).toString().padStart(2, '0')}/${(cal.get(Calendar.MONTH) + 1).toString().padStart(2, '0')}/${cal.get(Calendar.YEAR)}"
+        return "${cal.get(Calendar.DAY_OF_MONTH).toString().padStart(2, '0')}/" +
+            "${(cal.get(Calendar.MONTH) + 1).toString().padStart(2, '0')}/" +
+            cal.get(Calendar.YEAR)
     }
 
-    fun formatDateTime(timestamp: Long): String {
-        return "${formatDate(timestamp)} ${formatTime(timestamp)}"
-    }
+    fun formatDateTime(timestamp: Long): String = "${formatDate(timestamp)} ${formatTime(timestamp)}"
 
     fun formatRelativeDate(timestamp: Long): String {
         val todayStart = startOfDay(System.currentTimeMillis())
         val targetStart = startOfDay(timestamp)
-        val diffDays = (targetStart - todayStart) / DAY_MS
+        val diffDays = ((targetStart - todayStart) / DAY_MS).toInt()
 
         return when (diffDays) {
             0 -> "Hoje"
@@ -67,34 +67,45 @@ object DateTimeUtils {
             if (parts.size == 2) {
                 val hour = parts[0].toInt()
                 val minute = parts[1].toInt()
-                if (hour in 0..23 && minute in 0..59) {
-                    hour to minute
-                } else null
+                if (hour in 0..23 && minute in 0..59) hour to minute else null
             } else null
         } catch (e: Exception) {
             null
         }
     }
 
-    fun isToday(timestamp: Long): Boolean {
-        val todayStart = startOfDay(System.currentTimeMillis())
-        val targetStart = startOfDay(timestamp)
-        return todayStart == targetStart
+    fun isToday(timestamp: Long): Boolean =
+        startOfDay(System.currentTimeMillis()) == startOfDay(timestamp)
+
+    fun isOverdue(timestamp: Long): Boolean = timestamp < System.currentTimeMillis()
+
+    private fun parseTimesJson(timesJson: String): List<String> {
+        val result = mutableListOf<String>()
+        try {
+            val array = JSONArray(timesJson)
+            for (i in 0 until array.length()) {
+                val value = array.optString(i, "")
+                if (value.isNotBlank()) result.add(value)
+            }
+        } catch (_: Exception) {
+        }
+        return result
     }
 
-    fun isOverdue(timestamp: Long): Boolean {
-        return timestamp < System.currentTimeMillis()
-    }
-
-    fun getNextTriggerTime(scheduleType: String, timesJson: String, intervalHours: Int, startDate: Long, lastTaken: Long?): Long {
+    fun getNextTriggerTime(
+        scheduleType: String,
+        timesJson: String,
+        intervalHours: Int,
+        startDate: Long,
+        lastTaken: Long?
+    ): Long {
         val now = System.currentTimeMillis()
         val cal = getCalendar()
 
         return when (scheduleType) {
             "FIXED_TIME" -> {
-                val timeStrings = kotlinx.serialization.json.Json { ignoreUnknownKeys = true }.decodeFromString<List<String>>(timesJson)
                 var nextTime = Long.MAX_VALUE
-                for (timeStr in timeStrings) {
+                for (timeStr in parseTimesJson(timesJson)) {
                     parseTimeString(timeStr)?.let { (hour, minute) ->
                         cal.timeInMillis = now
                         cal.set(Calendar.HOUR_OF_DAY, hour)
@@ -102,26 +113,20 @@ object DateTimeUtils {
                         cal.set(Calendar.SECOND, 0)
                         cal.set(Calendar.MILLISECOND, 0)
                         var trigger = cal.timeInMillis
-                        if (trigger <= now) {
-                            trigger += DAY_MS
-                        }
-                        if (trigger < nextTime) {
-                            nextTime = trigger
-                        }
+                        if (trigger <= now) trigger += DAY_MS
+                        if (trigger < nextTime) nextTime = trigger
                     }
                 }
-                nextTime
+                if (nextTime == Long.MAX_VALUE) now + 60 * 60 * 1000 else nextTime
             }
             "INTERVAL" -> {
                 val intervalMs = intervalHours.toLong() * 60 * 60 * 1000
-                var baseTime = lastTaken ?: startDate
-                var nextTrigger = baseTime + intervalMs
-                while (nextTrigger <= now) {
-                    nextTrigger += intervalMs
-                }
+                if (intervalMs <= 0) return now + 60 * 60 * 1000
+                var nextTrigger = (lastTaken ?: startDate) + intervalMs
+                while (nextTrigger <= now) nextTrigger += intervalMs
                 nextTrigger
             }
-            else -> now + 60 * 60 * 1000 // fallback 1 hora
+            else -> now + 60 * 60 * 1000
         }
     }
 }

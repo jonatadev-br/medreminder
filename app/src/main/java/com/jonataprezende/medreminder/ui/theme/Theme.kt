@@ -1,7 +1,6 @@
 package com.jonataprezende.medreminder.ui.theme
 
 import android.app.Activity
-import android.content.Context
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -9,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF14D4B4),
@@ -82,7 +81,8 @@ fun Theme(
     if (!view.isInEditMode) {
         SideEffect {
             val activity = (view.context as? Activity) ?: return@SideEffect
-            val windowInsetsController = WindowCompat.getInsetsController(activity.window, activity.window.decorView)
+            val windowInsetsController =
+                WindowCompat.getInsetsController(activity.window, activity.window.decorView)
             windowInsetsController.isAppearanceLightStatusBars = !darkTheme
             windowInsetsController.isAppearanceLightNavigationBars = !darkTheme
             activity.window.statusBarColor = colorScheme.background.toArgb()
