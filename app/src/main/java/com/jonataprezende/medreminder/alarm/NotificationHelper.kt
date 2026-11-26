@@ -112,7 +112,7 @@ object NotificationHelper {
             )
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setAutoCancel(true)
             .setFullScreenIntent(fullScreenPendingIntent, true)
             .setSound(getAlarmSoundUri(context))
