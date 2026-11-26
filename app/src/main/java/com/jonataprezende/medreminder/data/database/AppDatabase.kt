@@ -13,9 +13,8 @@ import com.jonataprezende.medreminder.data.entity.DoseStatus
 import com.jonataprezende.medreminder.data.entity.Medication
 import com.jonataprezende.medreminder.data.entity.Schedule
 import com.jonataprezende.medreminder.data.entity.ScheduleType
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
+import org.json.JSONArray
+import org.json.JSONException
 
 @Database(
     entities = [Medication::class, Schedule::class, DoseLog::class],
@@ -48,7 +47,6 @@ abstract class AppDatabase : RoomDatabase() {
 }
 
 class Converters {
-    private val json = Json { ignoreUnknownKeys = true }
 
     @androidx.room.TypeConverter
     fun scheduleTypeToString(type: ScheduleType): String = type.name
@@ -63,8 +61,21 @@ class Converters {
     fun stringToDoseStatus(value: String): DoseStatus = DoseStatus.valueOf(value)
 
     @androidx.room.TypeConverter
-    fun listToJson(times: List<String>): String = json.encodeToString(times)
+    fun listToJson(times: List<String>): String {
+        return JSONArray(times).toString()
+    }
 
     @androidx.room.TypeConverter
-    fun jsonToList(jsonStr: String): List<String> = json.decodeFromString(jsonStr)
+    fun jsonToList(jsonStr: String): List<String> {
+        val list = mutableListOf<String>()
+        try {
+            val array = JSONArray(jsonStr)
+            for (i in 0 until array.length()) {
+                list.add(array.getString(i))
+            }
+        } catch (e: JSONException) {
+            // Return empty list on parse error
+        }
+        return list
+    }
 }

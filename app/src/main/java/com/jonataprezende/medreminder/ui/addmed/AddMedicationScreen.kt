@@ -49,7 +49,7 @@ import com.jonataprezende.medreminder.ui.components.CommonComponents.SectionHead
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
+import org.json.JSONArray
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -540,7 +540,7 @@ private suspend fun saveMedication(
     } else 0
     
     val timesJson = if (scheduleType == ScheduleType.FIXED_TIME) {
-        Json { ignoreUnknownKeys = true }.encodeToString(fixedTimes.split(",").map { it.trim() })
+        JSONArray(fixedTimes.split(",").map { it.trim() }).toString()
     } else "[]"
     
     val schedule = Schedule(
