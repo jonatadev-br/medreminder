@@ -1,6 +1,6 @@
 <resources>
-    <!-- Tema base: Material3 DayNight sem ActionBar -->
-    <style name="Theme.MedReminder" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Tema base: Material Components DayNight sem ActionBar -->
+    <style name="Theme.MedReminder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Cores principais -->
         <item name="colorPrimary">@color/accent</item>
         <item name="colorPrimaryVariant">@color/accent_variant</item>
@@ -19,9 +19,6 @@
         <item name="colorOnError">@color/on_error</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
 
-        <item name="colorBackground">@color/background</item>
-        <item name="colorOnBackground">@color/on_surface</item>
-
         <item name="colorSurface">@color/surface</item>
         <item name="colorSurfaceVariant">@color/surface_variant</item>
         <item name="colorOnSurface">@color/on_surface</item>
@@ -39,7 +36,7 @@
     </style>
 
     <!-- Estilo para botão CTA principal (pill, 56dp altura) -->
-    <style name="Widget.MedReminder.Button.CTA" parent="Widget.Material3.Button">
+    <style name="Widget.MedReminder.Button.CTA" parent="Widget.MaterialComponents.Button">
         <item name="cornerRadius">28dp</item>
         <item name="android:minHeight">56dp</item>
         <item name="android:textSize">15sp</item>
@@ -48,7 +45,7 @@
     </style>
 
     <!-- Chip de status -->
-    <style name="Widget.MedReminder.Chip.Status" parent="Widget.Material3.Chip.Entry">
+    <style name="Widget.MedReminder.Chip.Status" parent="Widget.MaterialComponents.Chip.Entry">
         <item name="chipCornerRadius">12dp</item>
         <item name="chipMinHeight">24dp</item>
         <item name="android:textSize">12sp</item>
