@@ -125,6 +125,6 @@ Este projeto é open-source sob licença MIT. Sinta-se livre para usar, modifica
 
 ---
 
-**Desenvolvido com ❤️ por [zyvo](https://github.com/zyvo9/ZYVO-AI) + [Jonatas](https://github.com/jonataprezende-commits)**
+**Desenvolvido com ❤️ por [zyvo](https://github.com/zyvo9/ZYVO-AI) + [Jonatã](https://github.com/jonataprezende-commits)**
 
 > **Nota**: Este é um app de lembrete pessoal. Não substitui orientação médica profissional. Sempre consulte seu médico ou farmacêutico sobre seus medicamentos.
